@@ -16,15 +16,15 @@
 
 > **RULE: Update this block at the end of every completed phase.** Tick the checkbox, bump the percentage, and update the bar. Never mark a phase complete until its tests pass and its commit is made. The percentages track *phase count*, not effort — phases differ in size; the gate is always the phase's acceptance criteria, never the calendar.
 
-**Overall completion: 0%**
+**Overall completion: 10%**
 
 ```
-[░░░░░░░░░░░░░░░░░░░░]  0 / 10 phases
+[██░░░░░░░░░░░░░░░░░░]  1 / 10 phases
 ```
 
 | Phase | Deliverable | Weight | Status |
 |---|---|---|---|
-| ☐ Phase 1 | Repo + tooling setup, project skeleton, Supabase auth, protected shell | 10% | Not started |
+| ☑ Phase 1 | Repo + tooling setup, project skeleton, Supabase auth, protected shell | 10% | Complete (2026-08-26) |
 | ☐ Phase 2 | Theme system + typed API client + TanStack Query | 10% | Not started |
 | ☐ Phase 3 | App shell, UI primitives, brand list & switcher | 10% | Not started |
 | ☐ Phase 4 | DESIGN.md and VOICE.md contract editors | 10% | Not started |

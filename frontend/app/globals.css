@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/* Ladder dark - the single deliberate look. Tokens are finalized in Phase 2; components use only these. */
+:root {
+  --bg: #0E0B09;
+  --bg-elevated: #171310;
+  --bg-inset: #201A16;
+  --border: #2E2623;
+  --text: #F2EDE4;
+  --text-muted: #A89F97;
+  --accent: #E8543A;
+  --accent-hover: #F0644A;
+  --accent-fg: #FFFFFF;
+  --success: #4ADE80;
+  --warning: #FBBF24;
+  --danger: #F87171;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-inset: var(--bg-inset);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), ui-serif, Georgia, serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  /* very subtle dot-grid texture, as on both reference sites */
+  background-image: radial-gradient(rgba(242, 237, 228, 0.045) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
