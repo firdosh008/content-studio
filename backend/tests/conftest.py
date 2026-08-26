@@ -107,3 +107,27 @@ def tmp_shared_volume(tmp_path, monkeypatch):
 
     monkeypatch.setattr(settings, "SHARED_VOLUME_ROOT", str(tmp_path))
     return tmp_path
+
+
+@pytest.fixture
+def stub_copy_model(db_session, monkeypatch):
+    from app.core.security import LADDER_ORG_ID
+    from app.db.models import ModelProvider, ProviderType
+    from app.services import copy_gen
+
+    provider = ModelProvider(
+        organization_id=LADDER_ORG_ID,
+        type=ProviderType.CODING_AGENT,
+        name="claude",
+        credential_ref="vault://claude",
+    )
+    db_session.add(provider)
+    db_session.commit()
+    # Stub the network boundary, not our own function: copy_gen's VOICE.md
+    # guard must still run, or the test that asserts it is testing the stub.
+    monkeypatch.setattr(
+        copy_gen.od,
+        "complete",
+        lambda model, system, prompt: "Generated copy.",
+    )
+    return provider.id
