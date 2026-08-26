@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createBrowserSupabase } from '@/lib/supabase/client'
+import { AUTH_BYPASS, clearDevSession } from '@/lib/authBypass'
 
 export function SignOutButton() {
   const router = useRouter()
@@ -9,8 +10,12 @@ export function SignOutButton() {
 
   async function signOut() {
     setPending(true)
-    const supabase = createBrowserSupabase()
-    await supabase.auth.signOut()
+    if (AUTH_BYPASS) {
+      clearDevSession() // dev-only: no Supabase session to end
+    } else {
+      const supabase = createBrowserSupabase()
+      await supabase.auth.signOut()
+    }
     router.replace('/login')
     router.refresh()
   }

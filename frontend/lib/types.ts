@@ -73,6 +73,13 @@ export interface Brief {
   created_at: string
 }
 
+// POST /briefs/from-research returns a NON-persisted prefill (FRONTEND_BUILD_PROMPT Phase 5
+// amendment): the only persisted brief comes from POST /briefs. One pull -> at most one brief row.
+export interface ResearchPrefill {
+  content: string
+  research_run_id: string
+}
+
 export interface Copy {
   id: string
   brief_id: string
@@ -115,7 +122,14 @@ export interface Artifact {
   export_urls: Record<string, string>
   qa_report: QaReport | Record<string, never>
   created_at: string
+  // Optional, coordinated with the backend (FRONTEND_BUILD_PROMPT Phase 8):
+  // per-page raster URLs for carousels/decks so human QA reviews every page,
+  // and the actions the backend currently allows so the UI need not keep a map.
+  pages?: string[]
+  allowed_actions?: ArtifactAction[]
 }
+
+export type ArtifactAction = 'qa' | 'submit' | 'approve' | 'reject' | 'iterate'
 
 export interface JobSnapshot {
   job_id: string

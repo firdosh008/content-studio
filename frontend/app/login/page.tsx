@@ -1,9 +1,12 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createBrowserSupabase } from '@/lib/supabase/client'
 import { APP_NAME } from '@/lib/appName'
+import { AUTH_BYPASS, setDevSession } from '@/lib/authBypass'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -13,6 +16,13 @@ export default function LoginPage() {
     event.preventDefault()
     setError(null)
     setPending(true)
+    if (AUTH_BYPASS) {
+      // Dev-only: no Supabase. A plain cookie stands in for the session.
+      setDevSession(email)
+      router.replace('/brands')
+      router.refresh()
+      return
+    }
     const supabase = createBrowserSupabase()
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -58,8 +68,14 @@ export default function LoginPage() {
               disabled={pending}
               className="mt-2 rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-accent-fg shadow-[0_0_24px_rgba(232,84,58,0.25)] transition hover:bg-accent-hover focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-elevated disabled:opacity-50"
             >
-              Send sign-in link <span aria-hidden="true">→</span>
+              {AUTH_BYPASS ? 'Sign in (dev, no magic link)' : 'Send sign-in link'}{' '}
+              <span aria-hidden="true">→</span>
             </button>
+            {AUTH_BYPASS && (
+              <p className="font-mono text-[11px] uppercase tracking-widest text-warning">
+                Dev mode: signs in without Supabase
+              </p>
+            )}
             {error && (
               <p role="alert" className="text-sm text-danger">
                 {error}

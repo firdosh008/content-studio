@@ -1,4 +1,5 @@
 import { createBrowserSupabase } from '@/lib/supabase/client'
+import { API_MOCK } from '@/lib/mock'
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1'
 
@@ -41,6 +42,12 @@ function extractDetail(raw: string, fallback: string): string {
   }
 }
 
+// Dev-only: the mock backend is loaded lazily so it never ships in a real bundle path.
+async function mockRequest(url: string, init: RequestInit): Promise<Response> {
+  const { mockResponse } = await import('@/lib/mock/handler')
+  return mockResponse(url, init)
+}
+
 export async function apiFetch<T = unknown>(path: string, init: FetchInit = {}): Promise<T> {
   const { token, headers, ...rest } = init
   const bearer = await resolveToken(token)
@@ -50,7 +57,9 @@ export async function apiFetch<T = unknown>(path: string, init: FetchInit = {}):
     merged.set('content-type', 'application/json')
   }
 
-  const response = await fetch(`${BASE}${path}`, { ...rest, headers: merged })
+  const response = API_MOCK
+    ? await mockRequest(`${BASE}${path}`, { ...rest, headers: merged })
+    : await fetch(`${BASE}${path}`, { ...rest, headers: merged })
 
   if (!response.ok) {
     const raw = await response.text()

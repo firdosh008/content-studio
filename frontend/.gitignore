@@ -42,3 +42,6 @@ next-env.d.ts
 
 # keep the env template
 !.env.example
+
+# playwright login states (contain sessions)
+tests/e2e/.auth/

@@ -16,24 +16,26 @@
 
 > **RULE: Update this block at the end of every completed phase.** Tick the checkbox, bump the percentage, and update the bar. Never mark a phase complete until its tests pass and its commit is made. The percentages track *phase count*, not effort — phases differ in size; the gate is always the phase's acceptance criteria, never the calendar.
 
-**Overall completion: 20%**
+**Overall completion: 90%** — code for all ten phases exists and passes its tests; Phase 10 stays open until the blockers below clear.
 
 ```
-[████░░░░░░░░░░░░░░░░]  2 / 10 phases
+[██████████████████░░]  9 / 10 phases (Phase 10 blocked, see below)
 ```
 
 | Phase | Deliverable | Weight | Status |
 |---|---|---|---|
 | ☑ Phase 1 | Repo + tooling setup, project skeleton, Supabase auth, protected shell | 10% | Complete (2026-08-26) |
 | ☑ Phase 2 | Theme system + typed API client + TanStack Query | 10% | Complete (2026-08-26) |
-| ☐ Phase 3 | App shell, UI primitives, brand list & switcher | 10% | Not started |
-| ☐ Phase 4 | DESIGN.md and VOICE.md contract editors | 10% | Not started |
-| ☐ Phase 5 | Briefs — list, manual creation, research pre-fill | 10% | Not started |
-| ☐ Phase 6 | Copy stage (write / generate / approve gate) | 10% | Not started |
-| ☐ Phase 7 | Generate form, variants, SSE live job progress | 10% | Not started |
-| ☐ Phase 8 | Artifact viewer — QA, iterate, approve, export | 10% | Not started |
-| ☐ Phase 9 | Reference library + Asset library | 10% | Not started |
-| ☐ Phase 10 | Admin (models, skills) + E2E walkthrough + polish | 10% | Not started |
+| ☑ Phase 3 | App shell, UI primitives, brand list & switcher | 10% | Complete (2026-08-26) |
+| ☑ Phase 4 | DESIGN.md and VOICE.md contract editors | 10% | Complete (2026-08-26) |
+| ☑ Phase 5 | Briefs — list, manual creation, research pre-fill | 10% | Complete (2026-08-26) |
+| ☑ Phase 6 | Copy stage (write / generate / approve gate) | 10% | Complete (2026-08-26) |
+| ☑ Phase 7 | Generate form, variants, SSE live job progress | 10% | Complete (2026-08-26) |
+| ☑ Phase 8 | Artifact viewer — QA, iterate, approve, export | 10% | Complete (2026-08-26) |
+| ☑ Phase 9 | Reference library + Asset library | 10% | Complete (2026-08-26) |
+| ☐ Phase 10 | Admin (models, skills) + E2E walkthrough + polish | 10% | Code complete, tests green (2026-08-26); **blocked** on (1) the final product name — PRD line 3 says pick one before completion; `lib/appName.ts` / `NEXT_PUBLIC_APP_NAME` still carry the working title — and (2) commit reconciliation: only docs + Phases 1–2 are committed; Phases 3–10 and the 2026-08-26 audit fixes are uncommitted and need the owner to commit them. Full-loop E2E is written and skips until the backend stack + seeded users exist. |
+
+**Known gaps (deliberate, not silently complete):** no user-management page (PRD §3 vs standing decision 5 — Supabase upserts members on first sign-in; admin promotion is a database update). No cost dashboard (PRD §10.7, "later"). No fixture-matrix UI (PRD §6.3 ships as a backend dev command).
 
 **Bar template per milestone:** 10% = `[██░░░░░░░░░░░░░░░░░░]`, 20% = `[████░░░░░░░░░░░░░░░░]`, 30% = `[██████░░░░░░░░░░░░░░]` … 100% = `[████████████████████]`.
 
