@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
-/* Ladder dark - the single deliberate look. Tokens are finalized in Phase 2; components use only these. */
+/* Ladder dark - the single deliberate look (FRONTEND_BUILD_PROMPT §3).
+   Components use only these tokens; never ad-hoc hex values. */
 :root {
   --bg: #0E0B09;
   --bg-elevated: #171310;
