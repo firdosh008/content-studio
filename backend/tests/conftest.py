@@ -78,3 +78,24 @@ def client_admin(client):
 def client_member(client):
     client.as_role(Role.MEMBER)
     return client
+
+
+@pytest.fixture
+def fake_storage(monkeypatch):
+    """In-memory stand-in.
+
+    Storage is a thin wrapper; hitting the network in unit tests would test
+    Supabase, not us.
+    """
+    from app.services import storage
+
+    store: dict[str, bytes] = {}
+    monkeypatch.setattr(
+        storage, "_put_bytes", lambda k, d, c: store.__setitem__(k, d)
+    )
+    monkeypatch.setattr(storage, "_get_bytes", lambda k: store[k])
+    monkeypatch.setattr(storage, "_remove", lambda k: store.pop(k, None))
+    monkeypatch.setattr(
+        storage, "_sign", lambda k, s: f"https://signed.example/{k}?e={s}"
+    )
+    return store
