@@ -33,16 +33,20 @@ def db_session():
 
 
 def _make_users(db_session) -> dict:
+    """Idempotent: the client and factory fixtures both need these users, and
+    a test may pull in both."""
     users = {}
     for role in (Role.ADMIN, Role.MEMBER):
-        user = User(
-            id=f"u-{role.value}",
-            organization_id=LADDER_ORG_ID,
-            email=f"{role.value}@ladder.com",
-            auth_ref=f"sub-{role.value}",
-            role=role,
-        )
-        db_session.add(user)
+        user = db_session.get(User, f"u-{role.value}")
+        if user is None:
+            user = User(
+                id=f"u-{role.value}",
+                organization_id=LADDER_ORG_ID,
+                email=f"{role.value}@ladder.com",
+                auth_ref=f"sub-{role.value}",
+                role=role,
+            )
+            db_session.add(user)
         users[role] = user
     db_session.commit()
     return users
