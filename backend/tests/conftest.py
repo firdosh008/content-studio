@@ -99,3 +99,11 @@ def fake_storage(monkeypatch):
         storage, "_sign", lambda k, s: f"https://signed.example/{k}?e={s}"
     )
     return store
+
+
+@pytest.fixture
+def tmp_shared_volume(tmp_path, monkeypatch):
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "SHARED_VOLUME_ROOT", str(tmp_path))
+    return tmp_path
