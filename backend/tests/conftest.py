@@ -131,3 +131,86 @@ def stub_copy_model(db_session, monkeypatch):
         lambda model, system, prompt: "Generated copy.",
     )
     return provider.id
+
+
+@pytest.fixture
+def factory(db_session):
+    """Builds the real rows an Artifact needs.
+
+    Foreign keys are enforced in these tests, so nothing here fakes an id.
+    """
+    from app.db.models import (
+        Artifact,
+        ArtifactStatus,
+        ArtifactType,
+        Brand,
+        Brief,
+        Copy,
+        CopyStatus,
+        GenerationMode,
+        ModelProvider,
+        ProviderType,
+    )
+
+    class Factory:
+        def __init__(self):
+            self.users = _make_users(db_session)
+            self.user = self.users[Role.ADMIN]
+
+        def brand(self, name="Ladder", slug="ladder"):
+            row = Brand(organization_id=LADDER_ORG_ID, name=name, slug=slug,
+                        created_by=self.user.id)
+            db_session.add(row)
+            db_session.commit()
+            return row
+
+        def provider(self, kind=ProviderType.CODING_AGENT, name="claude"):
+            row = ModelProvider(organization_id=LADDER_ORG_ID, type=kind,
+                                name=name, credential_ref="vault://k")
+            db_session.add(row)
+            db_session.commit()
+            return row
+
+        def brief(self, brand, content="launch"):
+            row = Brief(brand_id=brand.id, created_by=self.user.id,
+                        content=content, source="manual")
+            db_session.add(row)
+            db_session.commit()
+            return row
+
+        def copy(self, brief, approved=True, content="Words."):
+            row = Copy(
+                brief_id=brief.id, brand_id=brief.brand_id, content=content,
+                status=CopyStatus.APPROVED if approved else CopyStatus.DRAFT,
+                approved_by=self.user.id if approved else None,
+                version=1, created_by=self.user.id,
+            )
+            db_session.add(row)
+            db_session.commit()
+            return row
+
+        def artifact(self, artifact_type=ArtifactType.CAROUSEL,
+                     status=ArtifactStatus.QUEUED, brand=None, **kwargs):
+            brand = brand or self.brand()
+            brief = self.brief(brand)
+            row = Artifact(
+                brand_id=brand.id, brief_id=brief.id,
+                copy_id=self.copy(brief).id, artifact_type=artifact_type,
+                generation_mode=(GenerationMode.IMAGE
+                                 if artifact_type == ArtifactType.IMAGE
+                                 else GenerationMode.CODE),
+                model_provider_id=self.provider().id, status=status,
+                version=1, created_by=self.user.id, **kwargs,
+            )
+            db_session.add(row)
+            db_session.commit()
+            return row
+
+    return Factory()
+
+
+@pytest.fixture
+def artifact_pair(factory):
+    """Two artifacts on one brand, oldest first."""
+    brand = factory.brand()
+    return [factory.artifact(brand=brand).id for _ in range(2)]
