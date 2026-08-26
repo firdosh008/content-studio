@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: de45e3154a16
+Revision ID: c76736fcf4e4
 Revises: 
-Create Date: 2026-08-26 17:10:05.223096
+Create Date: 2026-08-26 17:21:37.510798
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'de45e3154a16'
+revision: str = 'c76736fcf4e4'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -29,7 +29,7 @@ def upgrade() -> None:
     op.create_table('model_providers',
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('organization_id', sa.String(length=36), nullable=False),
-    sa.Column('type', sa.String(length=24), nullable=False),
+    sa.Column('type', sa.Enum('coding_agent', 'image_provider', name='providertype', native_enum=False, length=32), nullable=False),
     sa.Column('name', sa.String(length=120), nullable=False),
     sa.Column('credential_ref', sa.String(length=500), nullable=False),
     sa.Column('enabled', sa.Boolean(), nullable=False),
@@ -42,7 +42,7 @@ def upgrade() -> None:
     sa.Column('organization_id', sa.String(length=36), nullable=False),
     sa.Column('email', sa.String(length=320), nullable=False),
     sa.Column('auth_ref', sa.String(length=128), nullable=False),
-    sa.Column('role', sa.String(length=16), nullable=False),
+    sa.Column('role', sa.Enum('admin', 'member', name='role', native_enum=False, length=32), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.ForeignKeyConstraint(['organization_id'], ['organizations.id'], ),
     sa.PrimaryKeyConstraint('id'),
@@ -85,7 +85,7 @@ def upgrade() -> None:
     op.create_table('brand_assets',
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('brand_id', sa.String(length=36), nullable=False),
-    sa.Column('asset_type', sa.String(length=24), nullable=False),
+    sa.Column('asset_type', sa.Enum('logo', 'font', 'headshot', 'screenshot', 'icon', name='assettype', native_enum=False, length=32), nullable=False),
     sa.Column('file_ref', sa.String(length=500), nullable=False),
     sa.Column('label', sa.String(length=200), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
@@ -97,8 +97,8 @@ def upgrade() -> None:
     sa.Column('brand_id', sa.String(length=36), nullable=False),
     sa.Column('file_ref', sa.String(length=500), nullable=False),
     sa.Column('file_type', sa.String(length=16), nullable=False),
-    sa.Column('scope', sa.String(length=16), nullable=False),
-    sa.Column('role', sa.String(length=24), nullable=False),
+    sa.Column('scope', sa.Enum('social', 'presentation', 'both', name='referencescope', native_enum=False, length=32), nullable=False),
+    sa.Column('role', sa.Enum('layout', 'typography', 'colour_gradient', 'overall_vibe', name='referencerole', native_enum=False, length=32), nullable=False),
     sa.Column('extracted_layout_spec', sa.Text(), nullable=True),
     sa.Column('uploaded_by', sa.String(length=36), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
@@ -143,7 +143,7 @@ def upgrade() -> None:
     sa.Column('brief_id', sa.String(length=36), nullable=False),
     sa.Column('brand_id', sa.String(length=36), nullable=False),
     sa.Column('content', sa.Text(), nullable=False),
-    sa.Column('status', sa.String(length=16), nullable=False),
+    sa.Column('status', sa.Enum('draft', 'approved', name='copystatus', native_enum=False, length=32), nullable=False),
     sa.Column('generated_by_model_id', sa.String(length=36), nullable=True),
     sa.Column('approved_by', sa.String(length=36), nullable=True),
     sa.Column('version', sa.Integer(), nullable=False),
@@ -161,10 +161,10 @@ def upgrade() -> None:
     sa.Column('brand_id', sa.String(length=36), nullable=False),
     sa.Column('brief_id', sa.String(length=36), nullable=False),
     sa.Column('copy_id', sa.String(length=36), nullable=True),
-    sa.Column('artifact_type', sa.String(length=24), nullable=False),
-    sa.Column('generation_mode', sa.String(length=16), nullable=False),
+    sa.Column('artifact_type', sa.Enum('social_post', 'carousel', 'deck', 'single_pager', 'image', name='artifacttype', native_enum=False, length=32), nullable=False),
+    sa.Column('generation_mode', sa.Enum('code', 'image', name='generationmode', native_enum=False, length=32), nullable=False),
     sa.Column('model_provider_id', sa.String(length=36), nullable=False),
-    sa.Column('status', sa.String(length=24), nullable=False),
+    sa.Column('status', sa.Enum('queued', 'generating', 'ready', 'qa_failed', 'in_review', 'approved', 'failed', name='artifactstatus', native_enum=False, length=32), nullable=False),
     sa.Column('version', sa.Integer(), nullable=False),
     sa.Column('parent_artifact_id', sa.String(length=36), nullable=True),
     sa.Column('variant_group_id', sa.String(length=36), nullable=True),
@@ -188,7 +188,7 @@ def upgrade() -> None:
     op.create_table('generation_jobs',
     sa.Column('id', sa.String(length=36), nullable=False),
     sa.Column('artifact_id', sa.String(length=36), nullable=False),
-    sa.Column('state', sa.String(length=16), nullable=False),
+    sa.Column('state', sa.Enum('queued', 'running', 'succeeded', 'failed', name='jobstate', native_enum=False, length=32), nullable=False),
     sa.Column('progress_ref', sa.JSON(), nullable=False),
     sa.Column('attempts', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),

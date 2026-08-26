@@ -8,6 +8,7 @@ from enum import StrEnum
 
 from sqlalchemy import (
     JSON,
+    Enum as SAEnum,
     Boolean,
     DateTime,
     ForeignKey,
@@ -109,7 +110,10 @@ class User(Base):
     organization_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"))
     email: Mapped[str] = mapped_column(String(320), unique=True)
     auth_ref: Mapped[str] = mapped_column(String(128), unique=True)
-    role: Mapped[Role] = mapped_column(String(16), default=Role.MEMBER)
+    role: Mapped[Role] = mapped_column(
+        SAEnum(Role, native_enum=False, length=32,
+               values_callable=lambda x: [i.value for i in x]), default=Role.MEMBER
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
@@ -155,8 +159,14 @@ class BrandReference(Base):
     brand_id: Mapped[str] = mapped_column(ForeignKey("brands.id"))
     file_ref: Mapped[str] = mapped_column(String(500))
     file_type: Mapped[str] = mapped_column(String(16))  # image | pptx
-    scope: Mapped[ReferenceScope] = mapped_column(String(16))
-    role: Mapped[ReferenceRole] = mapped_column(String(24))
+    scope: Mapped[ReferenceScope] = mapped_column(
+        SAEnum(ReferenceScope, native_enum=False, length=32,
+               values_callable=lambda x: [i.value for i in x])
+    )
+    role: Mapped[ReferenceRole] = mapped_column(
+        SAEnum(ReferenceRole, native_enum=False, length=32,
+               values_callable=lambda x: [i.value for i in x])
+    )
     extracted_layout_spec: Mapped[str | None] = mapped_column(Text, nullable=True)
     uploaded_by: Mapped[str | None] = mapped_column(
         ForeignKey("users.id"), nullable=True
@@ -168,7 +178,10 @@ class BrandAsset(Base):
     __tablename__ = "brand_assets"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
     brand_id: Mapped[str] = mapped_column(ForeignKey("brands.id"))
-    asset_type: Mapped[AssetType] = mapped_column(String(24))
+    asset_type: Mapped[AssetType] = mapped_column(
+        SAEnum(AssetType, native_enum=False, length=32,
+               values_callable=lambda x: [i.value for i in x])
+    )
     file_ref: Mapped[str] = mapped_column(String(500))
     label: Mapped[str] = mapped_column(String(200))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
@@ -187,7 +200,10 @@ class ModelProvider(Base):
     __tablename__ = "model_providers"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
     organization_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"))
-    type: Mapped[ProviderType] = mapped_column(String(24))
+    type: Mapped[ProviderType] = mapped_column(
+        SAEnum(ProviderType, native_enum=False, length=32,
+               values_callable=lambda x: [i.value for i in x])
+    )
     name: Mapped[str] = mapped_column(String(120))
     credential_ref: Mapped[str] = mapped_column(String(500))  # never the raw key
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -239,7 +255,10 @@ class Copy(Base):
     brief_id: Mapped[str] = mapped_column(ForeignKey("briefs.id"))
     brand_id: Mapped[str] = mapped_column(ForeignKey("brands.id"))
     content: Mapped[str] = mapped_column(Text)
-    status: Mapped[CopyStatus] = mapped_column(String(16), default=CopyStatus.DRAFT)
+    status: Mapped[CopyStatus] = mapped_column(
+        SAEnum(CopyStatus, native_enum=False, length=32,
+               values_callable=lambda x: [i.value for i in x]), default=CopyStatus.DRAFT
+    )
     generated_by_model_id: Mapped[str | None] = mapped_column(
         ForeignKey("model_providers.id"), nullable=True
     )
@@ -257,11 +276,19 @@ class Artifact(Base):
     brand_id: Mapped[str] = mapped_column(ForeignKey("brands.id"))
     brief_id: Mapped[str] = mapped_column(ForeignKey("briefs.id"))
     copy_id: Mapped[str | None] = mapped_column(ForeignKey("copies.id"), nullable=True)
-    artifact_type: Mapped[ArtifactType] = mapped_column(String(24))
-    generation_mode: Mapped[GenerationMode] = mapped_column(String(16))
+    artifact_type: Mapped[ArtifactType] = mapped_column(
+        SAEnum(ArtifactType, native_enum=False, length=32,
+               values_callable=lambda x: [i.value for i in x])
+    )
+    generation_mode: Mapped[GenerationMode] = mapped_column(
+        SAEnum(GenerationMode, native_enum=False, length=32,
+               values_callable=lambda x: [i.value for i in x])
+    )
     model_provider_id: Mapped[str] = mapped_column(ForeignKey("model_providers.id"))
     status: Mapped[ArtifactStatus] = mapped_column(
-        String(24), default=ArtifactStatus.QUEUED
+        SAEnum(ArtifactStatus, native_enum=False, length=32,
+               values_callable=lambda x: [i.value for i in x]), default=ArtifactStatus.QUEUED
+    
     )
     version: Mapped[int] = mapped_column(Integer, default=1)
     parent_artifact_id: Mapped[str | None] = mapped_column(
@@ -288,7 +315,10 @@ class GenerationJob(Base):
     __tablename__ = "generation_jobs"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
     artifact_id: Mapped[str] = mapped_column(ForeignKey("artifacts.id"))
-    state: Mapped[JobState] = mapped_column(String(16), default=JobState.QUEUED)
+    state: Mapped[JobState] = mapped_column(
+        SAEnum(JobState, native_enum=False, length=32,
+               values_callable=lambda x: [i.value for i in x]), default=JobState.QUEUED
+    )
     progress_ref: Mapped[dict] = mapped_column(JSON, default=dict)
     attempts: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

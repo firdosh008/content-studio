@@ -214,3 +214,104 @@ def artifact_pair(factory):
     """Two artifacts on one brand, oldest first."""
     brand = factory.brand()
     return [factory.artifact(brand=brand).id for _ in range(2)]
+
+
+@pytest.fixture
+def call_log():
+    return []
+
+
+@pytest.fixture
+def fake_open_design(monkeypatch, call_log):
+    from app.services import open_design as od
+
+    outcome = od.GenerationOutcome(
+        project_ref="proj_42",
+        export_urls={"png": "http://od/e/1.png"},
+        log="ok",
+    )
+
+    def _generate(req):
+        call_log.append("generate")
+        return outcome
+
+    def _edit(ref, message):
+        call_log.append("edit")
+        return outcome
+
+    monkeypatch.setattr(od, "generate", _generate)
+    monkeypatch.setattr(od, "edit", _edit)
+    return outcome
+
+
+@pytest.fixture
+def capture_request(monkeypatch):
+    """Records the GenerationRequest the worker actually builds."""
+    from app.services import open_design as od
+
+    seen: dict = {}
+
+    def _generate(req):
+        seen["request"] = req
+        return od.GenerationOutcome("proj_42", {"png": "http://od/e/1.png"}, "")
+
+    monkeypatch.setattr(od, "generate", _generate)
+    return seen
+
+
+@pytest.fixture
+def broken_open_design(monkeypatch):
+    from app.services import open_design as od
+
+    def boom(*_args, **_kwargs):
+        raise od.OpenDesignError("daemon down")
+
+    monkeypatch.setattr(od, "generate", boom)
+    monkeypatch.setattr(od, "edit", boom)
+
+
+@pytest.fixture
+def progress_log(monkeypatch):
+    from app.workers import queue as q
+
+    log: list[tuple[str, int]] = []
+    original = q.report_progress
+
+    def spy(db, job_id, stage, percent, detail=""):
+        log.append((stage, percent))
+        original(db, job_id, stage, percent, detail)
+
+    monkeypatch.setattr(q, "report_progress", spy)
+    return log
+
+
+def _artifact_with_contracts(db_session, factory):
+    from app.db.models import DesignSystem
+
+    brand = factory.brand()
+    db_session.add(
+        DesignSystem(brand_id=brand.id, design_md_content="# D", version=1)
+    )
+    db_session.commit()
+    return factory.artifact(brand=brand)
+
+
+@pytest.fixture
+def queued_artifact(db_session, factory):
+    from app.workers import queue as q
+
+    artifact = _artifact_with_contracts(db_session, factory)
+    q.enqueue(db_session, artifact.id)
+    return artifact.id
+
+
+@pytest.fixture
+def iterating_artifact(db_session, factory):
+    from app.workers import queue as q
+
+    artifact = _artifact_with_contracts(db_session, factory)
+    artifact.open_design_project_ref = "proj_42"
+    artifact.edit_instruction = "bigger headline"
+    db_session.commit()
+    q.enqueue(db_session, artifact.id)
+    return artifact.id

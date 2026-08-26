@@ -1,13 +1,13 @@
 """Seed the single organization. PRD 8: v1 has exactly one row.
 
 Revision ID: seed_ladder_org
-Revises: de45e3154a16
+Revises: c76736fcf4e4
 """
 
 from alembic import op
 
 revision = "seed_ladder_org"
-down_revision = "de45e3154a16"
+down_revision = "c76736fcf4e4"
 branch_labels = None
 depends_on = None
 
