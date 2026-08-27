@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+# next.js
+.next/
+out/
+# env
+.env
+.env.local
+.env*.local
+# tests
+test-results/
+playwright-report/
+playwright/.cache/
+coverage/
+# misc
+.DS_Store
+*.log
+npm-debug.log*
+# python
+__pycache__/
+*.pyc
+.venv/
