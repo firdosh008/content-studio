@@ -1,0 +1,25 @@
+services:
+  api:
+    build: .
+    env_file: .env
+    ports: ["8000:8000"]
+    volumes:
+      - open-design-data:/data/open-design
+    depends_on: [open-design]
+
+  worker:
+    build: .
+    env_file: .env
+    command: python -m app.workers.generation_worker
+    volumes:
+      - open-design-data:/data/open-design
+    depends_on: [open-design]
+
+  open-design:
+    image: ghcr.io/nexu-io/open-design:latest
+    env_file: .env.open-design
+    volumes:
+      - open-design-data:/app/data
+
+volumes:
+  open-design-data:
